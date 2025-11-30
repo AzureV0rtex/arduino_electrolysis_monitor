@@ -1,0 +1,39 @@
+// Voltage & Current Logger
+// A0 = voltage divider midpoint
+// A1 = sense resistor voltage
+
+const int voltagePin = A0;
+const int currentPin = A1;
+
+const float Vref = 5.0;
+const int ADCmax = 1023;
+const float dividerRatio = 2.0; // Adjust if divider is different
+const float Rsense = 10.0;      // Sense resistor value in ohms
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Voltage & Current Logger Started");
+  Serial.println("Time(ms), Voltage(V), Current(mA)");
+}
+
+void loop() {
+  // --- Voltage measurement ---
+  int rawV = analogRead(voltagePin);
+  float Vhalf = rawV * Vref / ADCmax;
+  float Vcell = Vhalf * dividerRatio;   // actual cell voltage
+
+  // --- Current measurement ---
+  int rawI = analogRead(currentPin);
+  float Vsense = rawI * Vref / ADCmax;  // voltage across sense resistor
+  float I = Vsense / Rsense;            // current in amps
+
+  // --- Log data ---
+  unsigned long t = millis();
+  Serial.print(t);
+  Serial.print(", ");
+  Serial.print(Vcell, 2);   // 2 decimal places
+  Serial.print(", ");
+  Serial.println(I * 1000, 2); // convert to mA, 2 decimal places
+
+  delay(1000); // logs every second (adjust as needed)
+}
